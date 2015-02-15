@@ -27,9 +27,8 @@ class ArticlesREST(val articleRepository: ArticleRepository) extends Controller 
 
   def get (id: String) = Action.async { implicit request =>
     val articleOptionFuture = articleRepository.findById (id)
-    articleOptionFuture.map (articleOption =>
-      articleOption.map (article => jsonOk(article)
-      ).getOrElse ( jsonNotFound(s"no article for $id") )
+    articleOptionFuture.map(
+      _.map(jsonOk).getOrElse( jsonNotFound(s"no article for $id") )
     ).recover{ case e:Exception => jsonInternalServerError(e.getMessage, e)}
   }
 }
