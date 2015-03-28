@@ -1,6 +1,6 @@
 package articles
 
-import support.BusinessException
+import support.NotFoundException
 
 import scala.concurrent.Future
 
@@ -8,7 +8,7 @@ trait ArticleRepository {
   def findById(id: String): Future[Article]
 }
 object ArticleRepository{
-  case class ArticleNotFound(id:String) extends BusinessException
+  case class ArticleNotFound(id:String) extends NotFoundException
 }
 
 class FakeArticleRepository extends ArticleRepository {
