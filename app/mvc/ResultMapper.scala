@@ -1,5 +1,6 @@
 package mvc
 
+import articles.ArticleRepository.ArticleNotFound
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Results}
@@ -28,12 +29,12 @@ object ResultMapper extends Results {
     InternalServerError(jsonMsg)
   }
 
-  def toJsonResult[A](subjectOptionFuture: Future[Option[A]], noneMsg: => String = "NotFound")
+  def toJsonResult[A](subjectFuture: Future[A], noneMsg: => String = "NotFound")
                      (implicit writer: Writes[A]): Future[Result] = {
-    subjectOptionFuture.map {
-      case Some(subject) => jsonOk(subject)
-      case None => jsonNotfound(noneMsg)
+    subjectFuture.map {
+      case subject => jsonOk(subject)
     }.recover {
+      case ArticleNotFound(id) => jsonNotfound(noneMsg)
       case e: Exception => jsonInternalServerError(e.getMessage, e)
     }
   }
