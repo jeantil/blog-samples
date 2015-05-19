@@ -4,13 +4,14 @@ package mvc
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.json.Json
 import play.api.mvc.{Result, Results}
-import support.FutureO
 
 import scala.concurrent.Future
+import scalaz.OptionT
 
 object ResultMapper extends Results {
 
   import play.api.libs.json.Writes
+  import scalaz.std.scalaFuture._
 
   def jsonOk[A:Writes]: A => Result = (subject: A)=> Ok(Json.toJson(subject))
 
@@ -34,10 +35,11 @@ object ResultMapper extends Results {
     case e: Exception=> jsonInternalServerError(e.getMessage, e)
   }
 
-  def toJsonResult[A](subjectFuture: FutureO[A])
+  def toJsonResult[A](subjectFuture: OptionT[Future,A])
                      (onNotFound : => Result,
                       onError:PartialFunction[Throwable, Result]=internalServerErrorHandler)
                      (implicit writer: Writes[A]): Future[Result] = {
     subjectFuture.map(jsonOk).getOrElse(onNotFound).recover(onError)
   }
+
 }
