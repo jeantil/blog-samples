@@ -1,0 +1,1 @@
+GET         /health             @eu.byjean.Health.check
